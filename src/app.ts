@@ -1,37 +1,45 @@
-import 'reflect-metadata';
-import { plainToInstance } from 'class-transformer';
-import _ from 'lodash';
-import { Product } from './product.model';
-import { validate } from 'class-validator';
+import axios from 'axios';
 
-console.log(_.shuffle([1, 2, 3, 4]));
+const form = document.querySelector('form')!;
+const addressInput = document.getElementById('address')! as HTMLInputElement;
 
-const newProduct = new Product('', -5.99);
-validate(newProduct).then((errors) => {
-  if (errors.length > 0) {
-    console.log(errors);
-  } else {
-    console.log(newProduct.getInformation());
-  }
-});
+const GOOGLE_MAPS_API_KEY = 'AIzaSyD6QfO3BDePzyxvNjlBR5IXUDiCaRB5DWY';
 
-const products = [
-  {
-    title: 'A Carpet',
-    price: 29.99,
-  },
-  {
-    title: 'A Book',
-    price: 10.99,
-  },
-];
+type GoogleGeoCodingResponse = {
+  results: { geometry: { location: { lat: number; lng: number } } }[];
+  status: 'OK' | 'ZERO_RESULTS';
+};
 
-// const loadedProducts = products.map((prod) => {
-//   return new Product(prod.title, prod.price);
-// });
+// declare var google: any;
 
-const loadedProducts = plainToInstance<Product, object>(Product, products);
+function searchAddressHandler(event: Event) {
+  event.preventDefault();
+  const enteredAddress = addressInput.value;
 
-for (const prod of loadedProducts) {
-  console.log(prod.getInformation());
+  axios
+    .get<GoogleGeoCodingResponse>(
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${enteredAddress}&key=${GOOGLE_MAPS_API_KEY}`
+    )
+    .then((res) => {
+      if (res.data.status !== 'OK') {
+        throw Error('Could not fetch location!');
+      }
+      console.log(res);
+      const coordinates = res.data.results[0].geometry.location;
+      console.log(coordinates);
+
+      const map = new google.maps.Map(
+        document.getElementById('map') as HTMLElement,
+        {
+          center: coordinates,
+          zoom: 16,
+        }
+      );
+
+      new google.maps.Marker({ position: coordinates, map: map });
+    })
+    .catch((err) => console.log(err));
+  console.log(enteredAddress);
 }
+
+form.addEventListener('submit', searchAddressHandler);

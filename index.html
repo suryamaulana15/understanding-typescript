@@ -6,9 +6,20 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>ProjectManager</title>
     <link rel="stylesheet" href="app.css" />
+    <script
+      async
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD6QfO3BDePzyxvNjlBR5IXUDiCaRB5DWY"
+      defer
+    ></script>
     <script type="module" src="dist/bundle.js" defer></script>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="map">
+      <p>Please enter an address!</p>
+    </div>
+    <form>
+      <input type="text" id="address" />
+      <button type="submit">SEARCH ADDRESS</button>
+    </form>
   </body>
 </html>
